@@ -59,7 +59,7 @@ class AplicationServer {
     this.app.use('/api/auth',auth.default);
     this.app.use('/api/marketplace',marketplace.default);
     //Angular Routes
-    this.app.all('*',(req:Request,res:Response) => {
+    this.app.get('*',(req:Request,res:Response) => {
       res.sendFile(path.resolve(__dirname,'public/index.html'))
   })
   }
