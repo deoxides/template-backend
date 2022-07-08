@@ -193,7 +193,8 @@ export const getCart = async(req:Request,res:Response) => {
             limit:1,
             include:[
                 {
-                    model:Poleron
+                    model:Poleron,
+                    foreignKey:'id_poleron'
                 }
             ]
         })
@@ -382,7 +383,7 @@ export const initPayTransbank = async(req:Request<{},{},any>,res:Response) => {
         const tx = new WebpayPlus.Transaction(new Options(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, Environment.Integration));
         const buyOrder = short.generate();
         const session = req.sessionID;
-        const response:IPaymentResponse = await tx.create(buyOrder, session, total + (envio ||0), 'http://localhost:4200/pay');
+        const response:IPaymentResponse = await tx.create(buyOrder, session, Number(total) + (envio ||0), 'https://jsj-stitch.herokuapp.com/pay');
         return res.json({
             token:response.token,
             url:response.url
