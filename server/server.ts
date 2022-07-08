@@ -40,7 +40,7 @@ class AplicationServer {
 
   middlewares():void{
     this.app.use(cors({
-      origin:['http://localhost:4200','http://localhost:8080','https://jsj-stitch.herokuapp.com/'],
+      origin:['http://localhost:4200','http://localhost:8080','https://jsj-stitch.herokuapp.com'],
       credentials:true
     }));
     this.app.use(cookierparser());
