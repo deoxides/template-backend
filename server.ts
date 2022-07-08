@@ -6,9 +6,9 @@ import session from 'express-session';
 import express,{Application,Request,Response} from "express";
 import httpServer from "http";
 //Database
-import { sequelize } from '../db';
+import { sequelize } from './db';
 //Routes
-import { admin,auth, marketplace } from '../routes';
+import { admin,auth, marketplace } from './routes';
 
 class AplicationServer {
   private app: Application;
@@ -50,7 +50,7 @@ class AplicationServer {
       saveUninitialized:false
     }))
     this.app.use(express.json());
-    this.app.use(express.static(path.resolve(__dirname,'../public')));
+    this.app.use(express.static(path.resolve(__dirname,'/public')));
     this.app.use('/uploads', express.static('uploads'));
   }
 
@@ -60,7 +60,7 @@ class AplicationServer {
     this.app.use('/api/marketplace',marketplace.default);
     //Angular Routes
     this.app.all('*',(req:Request,res:Response) => {
-      res.sendFile(path.resolve(__dirname,'../public/index.html'))
+      res.sendFile(path.resolve(__dirname,'/public/index.html'))
   })
   }
 }
