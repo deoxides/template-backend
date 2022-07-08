@@ -50,7 +50,7 @@ class AplicationServer {
       saveUninitialized:false
     }))
     this.app.use(express.json());
-    this.app.use(express.static(path.resolve(__dirname,'/public')));
+    this.app.use(express.static(__dirname +'/public'));
     this.app.use('/uploads', express.static('uploads'));
   }
 
@@ -60,7 +60,7 @@ class AplicationServer {
     this.app.use('/api/marketplace',marketplace.default);
     //Angular Routes
     this.app.all('*',(req:Request,res:Response) => {
-      res.sendFile(path.resolve(__dirname,'/public/index.html'))
+      res.sendFile(path.resolve(__dirname,'public/index.html'))
   })
   }
 }
