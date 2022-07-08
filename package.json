@@ -4,7 +4,6 @@
   "description": "",
   "main": "dist/app",
   "scripts": {
-    "build": "tsc --project ./",
     "start": "node dist/app.js",
     "dev": "nodemon -e ts --exec ts-node -r ./config.ts app.ts"
   },
