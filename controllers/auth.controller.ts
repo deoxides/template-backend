@@ -1,77 +1,56 @@
 import { Request, Response } from "express";
 import { encryptPassword, comparePassword } from '../helpers/bcrypt';
 //Usuario
-import { Usuario, IUsuario, ILogin } from '../models';
+import { IAuth, ILoginRequest, IRegistrarRequest } from '../models';
 import { createToken } from '../helpers/jwt';
 import { decode, JwtPayload } from "jsonwebtoken";
+import axios, { AxiosError } from "axios";
 
-export const createUser = async (req: Request<{}, {}, IUsuario>, res: Response) => {
+export const createUser = async (req: Request<{}, {}, IRegistrarRequest>, res: Response) => {
     try {
-        const body = req.body;
-        const userExists = await Usuario.findByPk(body.rut);
-        if (userExists) throw Error('El usuario ya existe');
-        const password = encryptPassword(body.clave);
-        await Usuario.create({
-            rut: body.rut,
-            nombre: body.nombre,
-            apellido: body.apellido,
-            sexo: body.sexo,
-            correo: body.correo,
-            clave: password,
-            celular: body.celular,
-            direccion: body.direccion,
-            rol: body.rol || 'cliente'
-        });
-
+        const { username, password, idZona } = req.body;
+        const response = await axios.post<IRegistrarRequest, IAuth>(process.env.URL! + '/api/Account/register', {
+            username,
+            password,
+            idZona
+        })
         return res.json({
             msg: 'Usuario creado',
             ok: true
         })
     } catch (error: any) {
-        return res.status(400).json({
-            msg: error?.message,
+        const err = error as AxiosError;
+        console.log(err)
+        return res.status(err.response?.status || 500).json({
+            msg: err.response?.data,
             ok: false
         })
     }
 }
 
-export const login = async (req: Request<{}, {}, ILogin>, res: Response) => {
+export const login = async (req: Request<{}, {}, ILoginRequest>, res: Response) => {
     try {
-        const { correo, clave } = req.body;
-
-        const userExists = await Usuario.findOne({
-            where: {
-                correo
-            }
+        const { username, password } = req.body;
+        const { data } = await axios.post<IAuth>(process.env.URL! + '/api/Account/login', {
+            username,
+            password
         })
-        if (!userExists) throw Error('El usuario no existe')
-
-        const { nombre, clave: password, rol } = userExists.get()
-        if (!comparePassword(clave, password)) {
-            return res.status(400).json({
-                msg: 'Correo o clave invalida',
-                ok: true
-            })
-        }
-        const token = await createToken(correo, nombre)
-        return res.cookie('token', token, { httpOnly: true }).json({
-            token: token,
-            rol,
+        return res.cookie('token', data.token, { httpOnly: false }).json({
+            token: data.token,
             ok: true
         })
     } catch (error) {
-        console.log(error)
-        return res.status(400).end()
+        const err = error as AxiosError
+        console.log(err)
+        return res.status(err.response?.status || 400).end()
     }
 }
 
-export const logout = (req: Request<{}, {}, ILogin>, res: Response) => {
+export const logout = (req: Request, res: Response) => {
     try {
-        return res.clearCookie('token').json({
-            ok:true
-        })
+        return res.clearCookie('token').status(200).end()
     } catch (error) {
-        console.log(error)
+        console.log('Logout', error)
         return res.status(500).end()
     }
 }
@@ -79,16 +58,10 @@ export const logout = (req: Request<{}, {}, ILogin>, res: Response) => {
 export const checkRol = async (req: Request, res: Response) => {
     try {
         const token = req.cookies['token'] as string;
-        const { args: [correo] } = decode(token) as JwtPayload;
-        const user = await Usuario.findOne({
-            where: {
-                correo
-            }
-        })
-        if (!user) throw Error('El usuario no existe');
+        const { args: [email] } = decode(token) as JwtPayload;
+
 
         return res.json({
-            data: user.get('rol'),
             ok: true
         })
     } catch (error) {
@@ -100,38 +73,24 @@ export const checkRol = async (req: Request, res: Response) => {
 export const checkAttributes = async (req: Request, res: Response) => {
     try {
         const token = req.cookies['token'] as string;
-        const { args: [correo] } = decode(token) as JwtPayload;
-        const user = await Usuario.findOne({
-            where: {
-                correo
-            }
-        })
-        if (!user) throw Error('El usuario no existe');
-
-        const { clave,rol, ...args } = user.get();
-
+        const { payload:{role,perms,name} } = decode(token, { complete: true, json: true }) as JwtPayload
         return res.json({
-            data: args,
+            data: {
+                role,perms,name
+            },
             ok: true
         })
     } catch (error) {
         console.log(error);
-        return res.status(404).end()
+        return res.status(500).end()
     }
 }
 
-export const updateAttributes = async(req:Request,res:Response) => {
+export const changePassword = async (req: Request, res: Response) => {
     try {
         const token = req.cookies['token'] as string;
-        const {} = req.body;
-        const {args:[correo]} = decode(token) as JwtPayload;
-        const user = await Usuario.findOne({
-            where:{
-                correo
-            }
-        })
-        if(!user) throw Error('El usuario no existe');
+        const a = decode(token) as JwtPayload;
     } catch (error) {
-       return res.status(500).end() 
-    }  
+        return res.status(500).end()
+    }
 }
