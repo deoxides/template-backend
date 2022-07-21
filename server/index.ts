@@ -43,7 +43,7 @@ class AplicationServer {
       }
     }))
     this.app.use(express.json());
-    this.app.use(express.static(__dirname +'/public'));
+    this.app.use(express.static(path.join(__dirname,'../public')));
   }
 
   routes():void{
@@ -51,7 +51,7 @@ class AplicationServer {
     this.app.use('/api/int/v1/contratos',contratos.default);
     //Angular Routes
     this.app.get('*',(req:Request,res:Response) => {
-      res.sendFile(path.resolve(__dirname,'public/index.html'))
+      res.sendFile(path.resolve(__dirname,'../public/index.html'))
   })
   }
 }
