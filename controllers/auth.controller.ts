@@ -20,7 +20,6 @@ export const createUser = async (req: Request<{}, {}, IRegistrarRequest>, res: R
         })
     } catch (error: any) {
         const err = error as AxiosError;
-        console.log(err)
         return res.status(err.response?.status || 500).json({
             msg: err.response?.data,
             ok: false
@@ -41,7 +40,7 @@ export const login = async (req: Request<{}, {}, ILoginRequest>, res: Response) 
         })
     } catch (error) {
         const err = error as AxiosError
-        console.log(err)
+        console.log(error)
         return res.status(err.response?.status || 400).end()
     }
 }

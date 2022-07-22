@@ -11,7 +11,7 @@ export const getInfo = async(req:Request,res:Response) => {
         const { data } = await axios.get('/api/Reliquidaciones/buscarPersonaPayRoll/' + rut,{
             headers:{
                 'Authorization':`Bearer ${token}`
-            }
+            },
         })
 
         return res.json({
@@ -20,7 +20,6 @@ export const getInfo = async(req:Request,res:Response) => {
         })
     } catch (error) {
         const err = error as AxiosError;
-        console.log(err)
         return res.status(err.response?.status || 500).json({
             data:(err.response?.data as any)?.title,
             ok:false
@@ -48,7 +47,6 @@ export const getContratos = async(req:Request,res:Response) => {
         })
     } catch (error) {
         const err = error as AxiosError;
-        console.log(err)
         return res.status(err.response?.status || 500).json({
             data:(err.response?.data as any)?.title,
             ok:false
@@ -69,8 +67,7 @@ export const getConceptos = async(req:Request,res:Response) => {
             ok:true
         })
     } catch (error) {
-        const err = error as AxiosError;
-        console.log(err);
+        const err = error as AxiosError;;
         return res.status(err.response?.status || 500).json({
             data:(err.response?.data as any)?.title,
             ok:false
@@ -82,7 +79,6 @@ export const postContato = async(req:Request<{},{},Reliquidacion>,res:Response) 
     try {
         const token = req.cookies['token'] as string;
         const args = req.body;
-        console.log(args)
         const response = await axios.post('/api/Reliquidaciones/subirFormReliquidaciones',
         {
             ...args
@@ -97,7 +93,6 @@ export const postContato = async(req:Request<{},{},Reliquidacion>,res:Response) 
         })
     } catch (error) {
         const err = error as AxiosError;
-        console.log(util.inspect(err.response?.data,{depth:null}))
         return res.status(err.response?.status || 500).json({
             data:(err.response?.data as any)?.title,
             ok:false
@@ -109,6 +104,31 @@ export const getListadoContratos = async(req:Request,res:Response) => {
     try {
         const token = req.cookies['token'] as string;
         const { data } = await axios.get('/api/Reliquidaciones/ObtenerListaSolicitudesReli',{
+            headers:{
+                'Authorization':`Bearer ${token}`
+            }
+        })
+        return res.json({
+            data,
+            ok:true
+        })
+    } catch (error) {
+        console.log(error)
+        const err = error as AxiosError;
+        return res.status(err.response?.status || 500).json({
+            data:(err.response?.data as any)?.title,
+            ok:false
+        })
+    }
+}
+export const getDetallesContratos = async(req:Request,res:Response) => {
+    try {
+        const token = req.cookies['token'] as string;
+        const { id } =req.query;
+        const { data } = await axios.get('/api/Reliquidaciones/ObtenerCuerpoSolicitudesReli',{
+            params:{
+                'idReliquidacion':id
+            },
             headers:{
                 'Authorization':`Bearer ${token}`
             }

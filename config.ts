@@ -5,10 +5,7 @@ dotenv.config();
 //Axios
 const axios = a.create({
     baseURL:process.env.URL!,
-    // proxy:{
-    //     host:process.env.URL!,
-    //     port:8081,
-    // }
+    timeout:2000
 })
 
 export default axios;

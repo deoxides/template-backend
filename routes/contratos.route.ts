@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { cookie, param, query,body } from "express-validator";
-import { getInfo,getContratos ,getConceptos, postContato, getListadoContratos } from '../controllers/contratos.controller';
+import { getInfo,getContratos ,getConceptos, postContato, getListadoContratos, getDetallesContratos } from '../controllers/contratos.controller';
 import { handlerErrorResult, verifyToken } from "../middlewares/validation";
 
 const router = Router();
@@ -53,5 +53,11 @@ router.get('/listado',[
     cookie('token').notEmpty().custom(verifyToken),
     handlerErrorResult
 ],getListadoContratos)
+
+router.get('/detalles',[
+    cookie('token').notEmpty().custom(verifyToken),
+    query('id').notEmpty().isInt().withMessage('Codigo inválido'),
+    handlerErrorResult
+],getDetallesContratos)
 
 export default router;
