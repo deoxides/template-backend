@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { encryptPassword, comparePassword } from '../helpers/bcrypt';
 //Usuario
-import { IAuth, ILoginRequest, IRegistrarRequest } from '../models';
+import { IAuth, ILoginRequest, IRegistrarRequest, User } from '../models';
 import { createToken } from '../helpers/jwt';
 import { decode, JwtPayload } from "jsonwebtoken";
 import axios, { AxiosError } from "axios";
@@ -30,12 +30,13 @@ export const createUser = async (req: Request<{}, {}, IRegistrarRequest>, res: R
 export const login = async (req: Request<{}, {}, ILoginRequest>, res: Response) => {
     try {
         const { username, password } = req.body;
-        const { data } = await axios.post<IAuth>(process.env.URL! + '/api/Account/login', {
+        const { data:{token,...args} } = await axios.post<IAuth>(process.env.URL! + '/api/Account/login', {
             username,
             password
         })
-        return res.cookie('token', data.token, { httpOnly: false }).json({
-            token: data.token,
+        const userInfo = await createToken(args)
+        res.cookie('personalInfo',userInfo)
+        return res.cookie('token', token, { httpOnly: false }).json({
             ok: true
         })
     } catch (error) {
@@ -47,9 +48,9 @@ export const login = async (req: Request<{}, {}, ILoginRequest>, res: Response) 
 
 export const logout = (req: Request, res: Response) => {
     try {
+        res.clearCookie('personalInfo')
         return res.clearCookie('token').status(200).end()
     } catch (error) {
-        console.log('Logout', error)
         return res.status(500).end()
     }
 }
@@ -72,10 +73,16 @@ export const checkRol = async (req: Request, res: Response) => {
 export const checkAttributes = async (req: Request, res: Response) => {
     try {
         const token = req.cookies['token'] as string;
+        const personalInfo = req.cookies['personalInfo'] as string | undefined
+        let info:User | undefined;
+        if(personalInfo){
+            const {payload:{nombreCompleto,zona}} = decode(personalInfo,{complete:true}) as JwtPayload
+            info = {nombreCompleto,zona}
+        }
         const { payload:{role,perms,name} } = decode(token, { complete: true, json: true }) as JwtPayload
         return res.json({
             data: {
-                role,perms,name
+                role,perms,name,...info
             },
             ok: true
         })

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { cookie, param, query,body } from "express-validator";
 import { getInfo,getContratos ,getConceptos, postContato, getListadoContratos, getDetallesContratos } from '../controllers/contratos.controller';
-import { handlerErrorResult, verifyToken } from "../middlewares/validation";
+import { handleErrorResult, verifyToken } from "../middlewares/validation";
 
 const router = Router();
 
@@ -11,19 +11,19 @@ router.get('/contratos',
     query('zona','campo obligatorio').notEmpty(),
     query('empresa','campo obligatorio').notEmpty(),
     query('instalacion','campo obligatorio').notEmpty(),
-    handlerErrorResult
+    handleErrorResult()
 ],getContratos)
 
 router.get('/contratos/:rut',
 [
     cookie('token').notEmpty().custom(verifyToken),
     param('rut','campo obligatorio').notEmpty(),
-    handlerErrorResult
+    handleErrorResult()
 ],getInfo)
 
 router.get('/concepto',[
     cookie('token').notEmpty().custom(verifyToken),
-    handlerErrorResult
+    handleErrorResult()
 ],getConceptos)
 
 router.post('',
@@ -46,18 +46,28 @@ router.post('',
     body("idZona").notEmpty().toInt(),
     body("idConcepto").notEmpty().toInt(),
     body("idEmpresa").notEmpty().toInt(),
-    handlerErrorResult
+    handleErrorResult()
 ],postContato)
 
 router.get('/listado',[
     cookie('token').notEmpty().custom(verifyToken),
-    handlerErrorResult
+    query('id').optional(),
+    query('idContrato').optional(),
+    query('idEmpresa').optional(),
+    query('idInstalacion').optional(),
+    query('contrato').optional(),
+    query('empresa').optional(),
+    query('instalacion').optional(),
+    query('motivo').optional(),
+    query('beneficiario').optional(),
+    query('validacion').optional(),
+    handleErrorResult()
 ],getListadoContratos)
 
 router.get('/detalles',[
     cookie('token').notEmpty().custom(verifyToken),
     query('id').notEmpty().isInt().withMessage('Codigo inválido'),
-    handlerErrorResult
+    handleErrorResult()
 ],getDetallesContratos)
 
 export default router;

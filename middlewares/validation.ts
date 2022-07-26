@@ -25,10 +25,10 @@ export const getRoles = (permisos:string[]) => async(token:string) =>{
   //TODO verificar roles en listado DB
 }
 
-export const handlerErrorResult = (req: Request,res: Response,next: NextFunction) => {
+export const handleErrorResult = (bypass:boolean = false) => (req: Request,res: Response,next: NextFunction) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const status = errors
+    if(bypass) return res.status(200).end()
     return res.status(400).json({
       errors,
     });

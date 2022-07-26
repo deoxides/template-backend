@@ -1,9 +1,9 @@
 import jwt, { JwtPayload, verify } from 'jsonwebtoken';
 
-export const createToken = (...args:string[]):Promise<string | undefined> => {
+export const createToken = (args:string[] | object):Promise<string | undefined> => {
     return new Promise((resolve,reject) =>{
-        const payload = {args};
-        jwt.sign(payload,process.env.JWT_KEY!,{
+        const payload = {...args};
+        jwt.sign(payload,process.env.SECRET_KEY!,{
             expiresIn:'6h'
         },(err,token) =>{
             if(err){

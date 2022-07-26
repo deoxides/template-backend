@@ -5,7 +5,7 @@ dotenv.config();
 //Axios
 const axios = a.create({
     baseURL:process.env.URL!,
-    timeout:2000
+    timeout:3000
 })
 
 export default axios;

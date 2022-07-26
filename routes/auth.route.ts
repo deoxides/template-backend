@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { body, cookie } from "express-validator";
 import { checkAttributes, checkRol, createUser, login, logout } from "../controllers/auth.controller";
-import { handlerErrorResult, isAdmin, verifyToken } from "../middlewares/validation";
+import { handleErrorResult, isAdmin, verifyToken } from "../middlewares/validation";
 
 const router = Router();
 
@@ -12,7 +12,7 @@ router.post('/createUser',
     body('password','campo obligatorio').notEmpty().bail().isStrongPassword({minLength:8}).withMessage('Contraseña insegura'),
     body('zona','campo obligatorio').notEmpty().bail(),
     // body('correo','campo obligatorio').notEmpty().bail().isEmail(),
-    handlerErrorResult
+    handleErrorResult()
   ],createUser
 )
 
@@ -22,22 +22,22 @@ router.post('/login',
   [
     body('username','campo obligatorio').notEmpty(),
     body('password','campo obligatorio').notEmpty(),
-    handlerErrorResult
+    handleErrorResult()
   ],login)
 
 router.get('/logout',[
   cookie('token','ningun token encontrado').notEmpty().custom(verifyToken),
-  handlerErrorResult
+  handleErrorResult()
 ],logout)
 
 router.get('/rol',[
   cookie('token','ningun token encontrado').notEmpty().custom(verifyToken),
-  handlerErrorResult
+  handleErrorResult()
 ],checkRol)
 
 router.get('/',[
   cookie('token','ningun token encontrado').notEmpty().custom(verifyToken),
-  handlerErrorResult
+  handleErrorResult(true)
 ],checkAttributes)
 
 

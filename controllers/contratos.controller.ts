@@ -3,6 +3,7 @@ import util from 'util'
 import { Axios, AxiosError } from "axios";
 import axios from '../config';
 import { Reliquidacion } from "../models/contratos.interface";
+import { transformFilter } from "../helpers/filters";
 
 export const getInfo = async(req:Request,res:Response) => {
     try {
@@ -103,20 +104,35 @@ export const postContato = async(req:Request<{},{},Reliquidacion>,res:Response) 
 export const getListadoContratos = async(req:Request,res:Response) => {
     try {
         const token = req.cookies['token'] as string;
-        const { data } = await axios.get('/api/Reliquidaciones/ObtenerListaSolicitudesReli',{
+        const filters = Object.entries(req.query).map(([key,value]) => {  
+            const propiedad = transformFilter(key)
+            return {
+                propiedad,
+                valor:value
+            }
+        })
+        const { data } = await axios.post('/api/Reliquidaciones/ObtenerListaSolicitudesReli',{
+            
+                "inicio": 0,
+                "termino": 50,
+                "tipo": "propio",
+                "filtros": [...(filters)]
+        },{
             headers:{
                 'Authorization':`Bearer ${token}`
             }
         })
         return res.json({
-            data,
+            count:data.cuenta,
+            data:data.filas,
             ok:true
         })
-    } catch (error) {
-        console.log(error)
+    } catch (error:any) {
         const err = error as AxiosError;
+        console.log((err))
         return res.status(err.response?.status || 500).json({
             data:(err.response?.data as any)?.title,
+            errors: (err.response?.data as any)?.errors,
             ok:false
         })
     }
