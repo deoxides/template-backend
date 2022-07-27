@@ -1,10 +1,11 @@
-import jwt, { JwtPayload, verify } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 export const createToken = (args:string[] | object):Promise<string | undefined> => {
     return new Promise((resolve,reject) =>{
         const payload = {...args};
         jwt.sign(payload,process.env.SECRET_KEY!,{
-            expiresIn:'6h'
+            expiresIn:'6h',
+            notBefore:0
         },(err,token) =>{
             if(err){
                 console.log(err)
@@ -13,11 +14,5 @@ export const createToken = (args:string[] | object):Promise<string | undefined> 
                 resolve(token)
             }
         })
-    })
-}
-
-export const getUserInfo = (token:string): Promise<null> => {
-    return new Promise((resolve) => {
-        
     })
 }

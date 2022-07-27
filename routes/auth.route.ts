@@ -35,7 +35,7 @@ router.get('/rol',[
   handleErrorResult()
 ],checkRol)
 
-router.get('/',[
+router.get('',[
   cookie('token','ningun token encontrado').notEmpty().custom(verifyToken),
   handleErrorResult(true)
 ],checkAttributes)

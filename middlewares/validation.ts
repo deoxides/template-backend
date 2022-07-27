@@ -5,7 +5,7 @@ import axios from "../config";
 
 export const verifyToken:CustomValidator = (token: string) =>{
   const result = verify(token,process.env.SECRET_KEY!,{
-    ignoreExpiration:false,
+    ignoreNotBefore:true
   })
   if(!result){
     throw Error('Token de acceso inválido')

@@ -34,9 +34,17 @@ export const login = async (req: Request<{}, {}, ILoginRequest>, res: Response) 
             username,
             password
         })
-        const userInfo = await createToken(args)
+        const userInfo = await createToken(args);
         res.cookie('personalInfo',userInfo)
-        return res.cookie('token', token, { httpOnly: false }).json({
+        const {role,perms,name} = decode(token) as JwtPayload;
+        return res.cookie('token', token, { httpOnly: true }).json({
+            data:{
+                name,
+                role,
+                perms,
+                nombreCompleto:args.nombreCompleto,
+                zona:args.zona
+            },
             ok: true
         })
     } catch (error) {
@@ -48,8 +56,9 @@ export const login = async (req: Request<{}, {}, ILoginRequest>, res: Response) 
 
 export const logout = (req: Request, res: Response) => {
     try {
-        res.clearCookie('personalInfo')
-        return res.clearCookie('token').status(200).end()
+        return res.clearCookie('token').clearCookie('personalInfo').json({
+            ok:true
+        })
     } catch (error) {
         return res.status(500).end()
     }

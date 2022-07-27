@@ -6,7 +6,7 @@ import session from 'express-session';
 import express,{Application,Request,Response} from "express";
 import httpServer from "http";
 //Routes
-import { auth, contratos } from '../routes';
+import { auth, contratos, servicios } from '../routes';
 
 class AplicationServer {
   private app: Application;
@@ -39,7 +39,6 @@ class AplicationServer {
       saveUninitialized:true,
       cookie: { 
         domain:'http://localhost',
-        secure: true 
       }
     }))
     this.app.use(express.json());
@@ -49,6 +48,7 @@ class AplicationServer {
   routes():void{
     this.app.use('/api/int/v1/auth',auth.default);
     this.app.use('/api/int/v1/contratos',contratos.default);
+    this.app.use('/api/int/v1/servicios',servicios.default);
     //Angular Routes
     this.app.get('*',(req:Request,res:Response) => {
       res.sendFile(path.resolve(__dirname,'../public/index.html'))

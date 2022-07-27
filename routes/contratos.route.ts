@@ -1,9 +1,24 @@
 import { Router } from "express";
 import { cookie, param, query,body } from "express-validator";
-import { getInfo,getContratos ,getConceptos, postContato, getListadoContratos, getDetallesContratos } from '../controllers/contratos.controller';
+import { getInfo,getContratos ,getConceptos, postContato, getListadoContratos, getDetallesContratos, validarSolicitud, eliminarSolicitud } from '../controllers/contratos.controller';
 import { handleErrorResult, verifyToken } from "../middlewares/validation";
 
 const router = Router();
+
+router.post('/solicitud',[
+    cookie('token').notEmpty().custom(verifyToken),
+    body('id').notEmpty().toInt().isInt(),
+    body('estado').notEmpty().isIn(['v','p','r']),
+    body('observacion'),
+    body('validacion').notEmpty().isInt(),
+    handleErrorResult()
+],validarSolicitud)
+
+router.delete('/solicitud/:id',[
+    cookie('token').notEmpty().custom(verifyToken),
+    param('id').notEmpty().toInt().isInt().withMessage('El id debe ser numerico'),
+    handleErrorResult()
+],eliminarSolicitud)
 
 router.get('/contratos',
 [
@@ -29,7 +44,7 @@ router.get('/concepto',[
 router.post('',
 [
     cookie('token').notEmpty().custom(verifyToken),
-    body("explicacion").notEmpty(),
+    body("explicacion"),
     body("nombreContrato").notEmpty(),
     body("nombreInstalacion").notEmpty(),
     body("codigoInstalacion").notEmpty().toInt(),
@@ -49,18 +64,19 @@ router.post('',
     handleErrorResult()
 ],postContato)
 
-router.get('/listado',[
+router.get('/listado/:estado',[
     cookie('token').notEmpty().custom(verifyToken),
-    query('id').optional(),
-    query('idContrato').optional(),
-    query('idEmpresa').optional(),
-    query('idInstalacion').optional(),
+    param('estado').optional().toLowerCase().isIn(['propio','pendiente','terminado']),
+    query('id').optional().isInt().withMessage('El id debe ser numerico'),
+    query('idContrato').optional().isInt().withMessage('El id del contrato debe ser numerico'),
+    query('idInstalacion').optional().isInt().withMessage('El id de la instalacion debe ser numerico'),
     query('contrato').optional(),
     query('empresa').optional(),
     query('instalacion').optional(),
     query('motivo').optional(),
     query('beneficiario').optional(),
     query('validacion').optional(),
+    query('zona').optional(),
     handleErrorResult()
 ],getListadoContratos)
 
@@ -69,5 +85,10 @@ router.get('/detalles',[
     query('id').notEmpty().isInt().withMessage('Codigo inválido'),
     handleErrorResult()
 ],getDetallesContratos)
+
+router.get('/zonas',[
+    cookie('token').notEmpty().custom(verifyToken),
+    handleErrorResult()
+])
 
 export default router;

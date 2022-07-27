@@ -126,3 +126,43 @@ export interface Reliquidacion {
     idEmpresa?:           number;
 }
 
+export interface Detalle {
+    explicacion:        string;
+    solicitante:        Solicitante;
+    codigoPayroll:      string;
+    dias:               string;
+    monto:              number;
+    horas:              number;
+    comentarioConcepto: string;
+    validaciones:       Validacione[];
+    id:                 number;
+    nombreEmpresa:      string;
+    nombreInstalacion:  string;
+    codigoInstalacion:  number;
+    codigoContrato:     number;
+    nombreContrato:     string;
+    nombreConcepto:     string;
+    rutBeneficiario:    string;
+    nombreBeneficiario: string;
+    zona:               string;
+    fechaInicio:        string;
+    fechaTermino:       string;
+}
+
+export interface Solicitante {
+    id:             number;
+    nombreCompleto: string;
+    correo:         string;
+}
+
+export interface Validacione {
+    id:                          number;
+    estado:                      string;
+    fecha?:                       string;
+    idValidador?:                 string;
+    observaciones?:               string;
+    numero:                      number;
+    idReliquidaciones:           number;
+    idReliquidacionesNavigation?: string;
+}
+
