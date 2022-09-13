@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+//Encriptacion de contraseñas
 import { encryptPassword, comparePassword } from '../helpers/bcrypt';
 //Usuario
 import { IAuth, ILoginRequest, IRegistrarRequest, User } from '../models';
@@ -20,7 +21,7 @@ export const createUser = async (req: Request<{}, {}, IRegistrarRequest>, res: R
         })
     } catch (error: any) {
         const err = error as AxiosError;
-        return res.status(err.response?.status || 500).json({
+        return res.status( 500).json({
             msg: err.response?.data,
             ok: false
         })
@@ -30,33 +31,27 @@ export const createUser = async (req: Request<{}, {}, IRegistrarRequest>, res: R
 export const login = async (req: Request<{}, {}, ILoginRequest>, res: Response) => {
     try {
         const { username, password } = req.body;
-        const { data:{token,...args} } = await axios.post<IAuth>(process.env.URL! + '/api/Account/login', {
-            username,
-            password
-        })
+        const args = {
+            item1:1,
+            item2:'2'
+        }
+        //Crea un token con informacion
         const userInfo = await createToken(args);
-        res.cookie('personalInfo',userInfo)
-        const {role,perms,name} = decode(token) as JwtPayload;
-        return res.cookie('token', token, { httpOnly: true }).json({
-            data:{
-                name,
-                role,
-                perms,
-                nombreCompleto:args.nombreCompleto,
-                zona:args.zona
-            },
+        //Configura una cookie para el cliente que hizo la peticion
+        return res.cookie('token', userInfo, { httpOnly: true }).json({
+            data:{},
             ok: true
         })
     } catch (error) {
-        const err = error as AxiosError
-        console.log(error)
-        return res.status(err.response?.status || 400).end()
+        //Finaliza la solicitud con un 400 en caso de error
+        return res.status( 400).end();
     }
 }
 
 export const logout = (req: Request, res: Response) => {
     try {
-        return res.clearCookie('token').clearCookie('personalInfo').json({
+        //Elimina las coolies que se generaron al desloguearse
+        return res.clearCookie('token').json({
             ok:true
         })
     } catch (error) {
@@ -67,8 +62,10 @@ export const logout = (req: Request, res: Response) => {
 export const checkRol = async (req: Request, res: Response) => {
     try {
         const token = req.cookies['token'] as string;
-        const { args: [email] } = decode(token) as JwtPayload;
-
+        //Contiene lo que se guardo en el token, en este caso linea 34
+        //  item1:1,
+        //  item2:'2'
+        const { args } = decode(token) as JwtPayload;
 
         return res.json({
             ok: true
@@ -82,30 +79,14 @@ export const checkRol = async (req: Request, res: Response) => {
 export const checkAttributes = async (req: Request, res: Response) => {
     try {
         const token = req.cookies['token'] as string;
-        const personalInfo = req.cookies['personalInfo'] as string | undefined
-        let info:User | undefined;
-        if(personalInfo){
-            const {payload:{nombreCompleto,zona}} = decode(personalInfo,{complete:true}) as JwtPayload
-            info = {nombreCompleto,zona}
-        }
-        const { payload:{role,perms,name} } = decode(token, { complete: true, json: true }) as JwtPayload
+
+        const { args } = decode(token, { complete: true, json: true }) as JwtPayload
         return res.json({
-            data: {
-                role,perms,name,...info
-            },
+            data: {},
             ok: true
         })
     } catch (error) {
         console.log(error);
         return res.status(500).end()
     }
-}
-
-export const changePassword = async (req: Request, res: Response) => {
-    try {
-        const token = req.cookies['token'] as string;
-        const a = decode(token) as JwtPayload;
-    } catch (error) {
-        return res.status(500).end()
-    }
-}
+};

@@ -1,8 +1,6 @@
 //Server Config
-import path from 'path';
 import cors from 'cors';
 import cookierparser from 'cookie-parser';
-import session from 'express-session';
 import express,{Application,Request,Response} from "express";
 import httpServer from "http";
 //Routes
@@ -32,27 +30,12 @@ class AplicationServer {
       credentials:true
     }));
     this.app.use(cookierparser(process.env.SECRET_KEY!));
-    this.app.use(session({
-      secret:process.env.SECRET_KEY!,
-
-      resave:false,
-      saveUninitialized:true,
-      cookie: { 
-        domain:'http://localhost',
-      }
-    }))
-    this.app.use(express.json());
-    this.app.use(express.static(path.join(__dirname,'../public')));
   }
 
   routes():void{
     this.app.use('/api/int/v1/auth',auth.default);
     this.app.use('/api/int/v1/contratos',contratos.default);
     this.app.use('/api/int/v1/servicios',servicios.default);
-    //Angular Routes
-    this.app.get('*',(req:Request,res:Response) => {
-      res.sendFile(path.resolve(__dirname,'../public/index.html'))
-  })
   }
 }
 

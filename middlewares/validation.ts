@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult, CustomValidator } from "express-validator";
 import { decode, JwtPayload, verify } from 'jsonwebtoken';
-import axios from "../config";
 
+//verificar Json web token
 export const verifyToken:CustomValidator = (token: string) =>{
   const result = verify(token,process.env.SECRET_KEY!,{
     ignoreNotBefore:true
@@ -13,18 +13,7 @@ export const verifyToken:CustomValidator = (token: string) =>{
   return true
 }
 
-export const isAdmin = (permisos:string[]) => (token:string) => {
-  const { payload } = decode(token) as JwtPayload;
-  //TODO verificar atributo admin?
-  return true;
-}
-
-export const getRoles = (permisos:string[]) => async(token:string) =>{
-  const { payload:{permissions} } = decode(token) as JwtPayload;
-  const roles = await axios.get('')
-  //TODO verificar roles en listado DB
-}
-
+//Retornar errores
 export const handleErrorResult = (bypass:boolean = false) => (req: Request,res: Response,next: NextFunction) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

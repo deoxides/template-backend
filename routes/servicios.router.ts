@@ -6,8 +6,8 @@ import { handleErrorResult, verifyToken } from "../middlewares/validation";
 const router = Router();
 
 router.get('/zonas',[
-    cookie('token').notEmpty().custom(verifyToken),
-    handleErrorResult()
+    body(['nombre','apellido']).notEmpty(),
+    handleErrorResult
 ],getZonas)
 
 export default router;
